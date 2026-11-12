@@ -3,6 +3,8 @@ message: "If you use this code, please cite the paper."
 title: "When Carbon-Aware Deferral Backfires: code and analysis"
 type: software
 license: MIT
+doi: 10.5281/zenodo.24170183
+repository-code: "https://github.com/Mkreddy2763/carbon-aware-deferral"
 authors:
   - given-names: Bilakanti Mukesh
     family-names: Reddy

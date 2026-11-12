@@ -1,5 +1,7 @@
 # When Carbon-Aware Deferral Backfires
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24170183.svg)](https://doi.org/10.5281/zenodo.24170183)
+
 Code, configurations and analysis for the PCDS 2026 paper
 
 > **When Carbon-Aware Deferral Backfires: Contention, Not Forecast Error, Drives Harm in GPU Workload Shifting**
@@ -68,7 +70,8 @@ trace (`alibaba/clusterdata`), the GB Carbon Intensity API (NESO), the archive o
 
 ## Citation
 
-If you use this code, please cite the paper (see `CITATION.cff`).
+If you use this code, please cite the paper (see `CITATION.cff`). The code is archived on Zenodo:
+[doi:10.5281/zenodo.24170183](https://doi.org/10.5281/zenodo.24170183).
 
 ## Licence
 
