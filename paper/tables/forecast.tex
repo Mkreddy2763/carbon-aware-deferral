@@ -1,0 +1,24 @@
+\begin{table}[t]
+\caption{Test-period forecast quality. MAE (gCO$_2$/kWh) by horizon band; empirical coverage (\%) of
+nominal 90\% intervals from split conformal and ACI; mean ACI interval width. Naive = seasonal-naive MAE.
+$^\dagger$GB with archived horizon-resolved operator (NESO) forecasts; NESO-st = the API's stored forecast.}
+\label{tab:forecast}
+\centering\scriptsize\setlength{\tabcolsep}{2.4pt}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llrrrrrrr}
+\toprule
+ & & \multicolumn{3}{c}{MAE by horizon (h)} & & \multicolumn{2}{c}{Cov.\ @90\%} & \\
+\cmidrule(lr){3-5}\cmidrule(lr){7-8}
+Region & Model & 1--6 & 7--24 & 25--48 & Naive & Split & ACI & Width \\
+\midrule
+GB-op$^\dagger$ & NESO & 17.6 & 23.6 & 27.4 & 51.0 & 91 & 90 & 118 \\
+GB-op$^\dagger$ & LGBM & 29.1 & 44.9 & 53.9 & 51.0 & 86 & 90 & 200 \\
+GB-25 & LGBM & 27.7 & 42.6 & 53.3 & 46.1 & 79 & 90 & 171 \\
+GB-25 & NESO-st & 8.6 & 8.6 & 8.6 & 46.1 & 92 & 90 & 39 \\
+CISO & LGBM & 23.7 & 29.5 & 34.2 & 31.5 & 86 & 90 & 135 \\
+ERCO & LGBM & 44.5 & 60.1 & 66.4 & 71.6 & 71 & 86 & 230 \\
+PJM & LGBM & 11.6 & 14.8 & 16.8 & 17.8 & 90 & 89 & 61 \\
+MISO & LGBM & 26.9 & 41.8 & 47.6 & 51.8 & 66 & 88 & 154 \\
+\bottomrule
+\end{tabular}}
+\end{table}

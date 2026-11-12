@@ -1,0 +1,57 @@
+# v2 round: congestion mechanism + congestion-aware deferral + savings/harm dial.
+# Results go to results/raw_v2/ (v1 grid in configs/experiments.yaml stays reproducible).
+regions_file: configs/regions.yaml
+
+workload:
+  window_days: 7
+  warmup_days: 1
+  trace_day0: rotate
+  trace_weeks: 7
+  dur_cap_days: 7
+  sample_rate: 1.0
+  seed: 0
+  migration_min: 10
+
+groups:
+  US3:
+    members: [CISO, ERCO, PJM]
+    tz: America/Chicago
+
+defaults:
+  util_target: 0.7
+
+group_by: [exp, region, policy, slack_h]
+
+OFFSETS: &offsets [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+REGIONS: &regions [GBop, GB, CISO, ERCO, PJM, MISO]
+
+experiments:
+  V2SMOKE:
+    grid:
+      region: [GBop]
+      policy: [P0, P3, P5, P8, P9, P9-r]
+      util_target: [0.5, 0.9]
+      offset: [0]
+
+  V2U:  # Experiment 1 + 2: utilisation sweep, all policies incl. oracle, P8, P9
+    grid:
+      region: *regions
+      policy: [P0, P1, P2, P3, P4, P4-l0.5, P5, P7, P7-noreplan, P8, P8-h0.5, P8-noreplan, P9, P9-r]
+      util_target: [0.5, 0.7, 0.9]
+      slack_h: [12]
+      offset: *offsets
+
+  V2DL:  # savings-vs-harm dial: lambda (hourly conformal width penalty), alpha fixed at 0.1
+    grid:
+      region: *regions
+      policy: [P0, P5, P3, P4-l0.1, P4-l0.25, P4-l0.5, P4-l1, P4-l2, P4]
+      slack_h: [12]
+      offset: *offsets
+
+  V2DA:  # savings-vs-harm dial: alpha of the decision-level conformal rule
+    grid:
+      region: *regions
+      policy: [P0, P5, P7, P7-noreplan]
+      alpha: [0.05, 0.1, 0.2, 0.3, 0.5]
+      slack_h: [12]
+      offset: *offsets

@@ -1,0 +1,63 @@
+\input{tables/main_v2.tex}
+\input{tables/util.tex}
+
+\section{Measurement: When Does Deferral Backfire?}\label{sec:measure}
+
+\textbf{Harm is common, even with perfect foresight.}
+Table~\ref{tab:main} reports savings and harm at 70\% utilisation. On GB-op, where every forecast
+error comes from NESO's published forecasts, point-forecast greedy with re-planning (P3) saves
+\res{V2U}{GBop-S12-utiltarget0.7}{P3}{savingpct}\% of emissions but harms
+\res{V2U}{GBop-S12-utiltarget0.7}{P3}{harmrate}\% of the jobs it shifts. Clairvoyant greedy (CG) saves
+\res{V2U}{GBop-S12-utiltarget0.7}{P5}{savingpct}\% and still harms
+\res{V2U}{GBop-S12-utiltarget0.7}{P5}{harmrate}\%. Across the six regions the pattern holds
+(means \res{V2U}{ALL-S12-utiltarget0.7}{P3}{harmrate}\% and
+\res{V2U}{ALL-S12-utiltarget0.7}{P5}{harmrate}\%). CG never harms a job that could have started
+at submission: its \emph{voluntary} harm is \res{V2U}{ALL-S12-utiltarget0.7}{P5}{harmratevoluntary}\%
+by construction. Every one of its harmed jobs arrived to a cluster whose free capacity had already
+been reserved, mostly by other deferred jobs.
+
+\textbf{Harm grows with load (Table~\ref{tab:util}, Fig.~\ref{fig:util}).}
+Holding the workload fixed and scaling capacity, CG's harm rate rises from
+\res{V2U}{ALL-S12-utiltarget0.5}{P5}{harmrate}\% at 50\% utilisation to
+\res{V2U}{ALL-S12-utiltarget0.7}{P5}{harmrate}\% at 70\% and
+\res{V2U}{ALL-S12-utiltarget0.9}{P5}{harmrate}\% at 90\%, while its saving falls from
+\res{V2U}{ALL-S12-utiltarget0.5}{P5}{savingpct}\% to \res{V2U}{ALL-S12-utiltarget0.9}{P5}{savingpct}\%.
+The same holds for every policy. Mean waiting time of \emph{non-deferrable} jobs under P3 grows from
+\res{V2U}{ALL-S12-utiltarget0.5}{P3}{waitminmeannondeferrable} to
+\res{V2U}{ALL-S12-utiltarget0.9}{P3}{waitminmeannondeferrable} minutes, against
+\res{V2U}{ALL-S12-utiltarget0.9}{P0}{waitminmeannondeferrable} under carbon-agnostic FCFS at 90\%.
+Deferred reservations crowd out work that cannot wait. Longer slack has the same effect: in the
+65\%-utilisation grid CG harms \res{V1S}{ALL-S2}{P5}{harmrate}\% of shifted jobs at 2\,h slack
+and \res{V1S}{ALL-S12}{P5}{harmrate}\% at 12\,h, as more jobs can reach the same trough.
+A slow ramp would suggest that CI simply mean-reverts within the slack window. Instead the growth is
+steep and monotone in load, with zero voluntary CG harm, so the mechanism is contention.
+A joint offline optimum would schedule around this contention, so our figures bound the harm
+attributable to greedy deferral rather than the minimum cost of shifting per se.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_util.pdf}
+\caption{Harm rate and saving vs.\ baseline utilisation (mean of six regions, $S{=}12$\,h). Clairvoyant-greedy harm
+rises with load: congestion, not forecast error.}
+\label{fig:util}
+\end{figure}
+
+\textbf{Attribution (Fig.~\ref{fig:decomp}).}
+Eq.~\eqref{eq:decomp} splits each harmed job's excess exactly. For single-decision policies the
+re-planning term is zero and the split is unambiguous. For point-forecast greedy (P2), forecast error
+accounts for \res{V2U}{POOL-S12-utiltarget0.5}{P2}{shareforecast}\% of harmful excess at 50\%
+utilisation, but only \res{V2U}{POOL-S12-utiltarget0.7}{P2}{shareforecast}\% at 70\% and
+\res{V2U}{POOL-S12-utiltarget0.9}{P2}{shareforecast}\% at 90\%. The remainder is contention: the job
+did not run in the slot its rule wanted. CG's forecast term is negative
+(\res{V2U}{POOL-S12-utiltarget0.7}{P5}{shareforecast}\% at 70\%), since the slots it wanted were
+genuinely cleaner; all of its harm is contention. Forecast error is therefore a first-order cause
+only in a lightly loaded cluster. For policies that re-plan hourly the re-planning term also absorbs
+displacement by capacity, so we report their attribution only in aggregate.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_decomp.pdf}
+\caption{Where harmful excess comes from (single-decision policies, all regions pooled; 50/70/90\% utilisation).
+Forecast error dominates only at low load; contention dominates otherwise.}
+\label{fig:decomp}
+\end{figure}

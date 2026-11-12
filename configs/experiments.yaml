@@ -1,0 +1,122 @@
+# Experiment grids. Each grid expands to cells (see carbonsched/run.py).
+# Forecast knobs are collapsed for forecast-free policies (P0, P1, P5), so the
+# baselines are run once per (region, slack, offset, ablation).
+regions_file: configs/regions.yaml
+
+workload:
+  window_days: 7          # replay window per offset (one week)
+  warmup_days: 1          # simulated but excluded from metrics
+  trace_day0: rotate      # offset o replays trace week 1 + (o mod trace_weeks)
+  trace_weeks: 7          # trace weeks 1..7 are the stable part of the 2020 PAI trace
+  dur_cap_days: 7
+  sample_rate: 1.0        # full trace volume
+  seed: 0
+  migration_min: 10
+
+groups:
+  US3:                    # spatio-temporal: three US balancing authorities (EIA-930)
+    members: [CISO, ERCO, PJM]
+    tz: America/Chicago
+
+defaults:
+  util_target: 0.65
+
+group_by: [exp, region, policy, slack_h]
+
+OFFSETS: &offsets [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+REGIONS: &regions [GBop, GB, CISO, ERCO, PJM, MISO]
+
+experiments:
+  SMOKE:
+    grid:
+      region: [GBop]
+      policy: [P0, P1, P2, P3, P4, P4-l0.5, P5, P7]
+      offset: [0]
+
+  E1:   # main table: real forecast errors, S = 12 h
+    grid:
+      region: *regions
+      policy: [P0, P1, P2, P3, P4, P4-l0.5, P5, P7]
+      slack_h: [12]
+      offset: *offsets
+
+  E2:   # slack sweep
+    grid:
+      region: *regions
+      policy: [P0, P2, P3, P4, P5, P7]
+      slack_h: [2, 6, 24]
+      offset: *offsets
+
+  E3:   # forecast-error sweep (k = 1 is E1)
+    grid:
+      region: *regions
+      policy: [P0, P2, P3, P4, P4-l0.5, P5, P7]
+      k: [0.5, 2, 3]
+      slack_h: [12]
+      offset: *offsets
+
+  E4:   # conformal method / alpha / lambda sensitivity
+    grid:
+      region: *regions
+      policy: [P0, P4, P4-l0.25, P4-l1, P4-noreplan, P5, P7, P7-noreplan]
+      method: [aci, split]
+      alpha: [0.1, 0.2]
+      slack_h: [12]
+      offset: *offsets
+
+  E5:   # spatio-temporal over three regions
+    grid:
+      region: [US3]
+      policy: [P0, P3, P4, P5, P7, P6, P6-point, P6-oracle, P6-cdec]
+      slack_h: [6, 12]
+      offset: *offsets
+
+  E6a:  # robustness: duration misprediction
+    grid:
+      region: *regions
+      policy: [P0, P2, P3, P4, P5, P7]
+      dur_noise: [0.5]
+      offset: *offsets
+
+  E6b:  # robustness: deferrable threshold
+    grid:
+      region: *regions
+      policy: [P0, P3, P4, P5, P7]
+      defer_min_h: [0.5, 4.0]
+      offset: *offsets
+
+  E6c:  # robustness: energy model (ranking must not change)
+    grid:
+      region: [GBop, CISO]
+      policy: [P0, P2, P3, P4, P5, P7]
+      p_gpu: [200.0, 400.0]
+      offset: *offsets
+
+  E6d:
+    grid:
+      region: [GBop, CISO]
+      policy: [P0, P2, P3, P4, P5, P7]
+      pue: [1.1, 1.5]
+      offset: *offsets
+
+  E6e:  # operator-forecast variants (GB): stored nowcast-like F2s, and LightGBM on GBop
+    grid:
+      region: [GBop]
+      policy: [P2, P3, P4, P0, P5, P7]
+      model: [F1, F2s]
+      offset: *offsets
+
+  E6f:  # cluster load: congestion vs forecast error as the source of harm
+    grid:
+      region: [GBop, CISO, ERCO]
+      policy: [P0, P2, P3, P4, P4-l0.5, P5, P7]
+      util_target: [0.35, 0.8]
+      offset: *offsets
+
+  FIG:  # per-job dumps for figures (example week, harm by job length)
+    fixed:
+      save_jobs: true
+    grid:
+      region: [GBop]
+      policy: [P0, P3, P4, P4-l0.5, P5, P7]
+      offset: *offsets

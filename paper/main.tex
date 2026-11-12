@@ -1,0 +1,45 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+\usepackage{cite}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+% every number in the paper comes from analysis/make_tables.py; a missing one prints a bold ??
+\input{numbers.tex}
+\newcommand{\citeverify}{\textbf{[CITE-VERIFY]}}
+
+\begin{document}
+
+\title{When Carbon-Aware Deferral Backfires:\\Contention, Not Forecast Error, Drives Harm\\in GPU Workload Shifting}
+
+\author{\IEEEauthorblockN{Bilakanti Mukesh Reddy, Manda Siddharth, Akhil Varun Varma Kalidindi, Rishi Kamishetty, Lakshmi Pavan Rangisetti, Veeraiah Talagondapati}
+\IEEEauthorblockA{Department of Computer Science and Engineering, Mahindra University, Hyderabad, Telangana, India\\
+\{se24uari026, se24uari039, se24uari028, se24uari025, se24uari015, veeraiah.talagondapati\}@mahindrauniversity.edu.in}}
+
+\maketitle
+
+\input{sections/abstract.tex}
+
+\input{sections/intro.tex}
+\input{sections/background.tex}
+\input{sections/formulation.tex}
+\input{sections/setup.tex}
+\input{sections/measurement.tex}
+\input{sections/uncertainty.tex}
+\input{sections/congestion.tex}
+\input{sections/guidance.tex}
+
+\section*{Acknowledgment}
+The authors thank Mahindra University for providing the computational resources (DGX cluster) used
+for the simulations in this work. This research received no external funding. Parts of the software,
+experiment orchestration and text of this paper were drafted with the assistance of an AI coding
+assistant (Anthropic Claude); the authors designed the study, reviewed all code and results, and take
+full responsibility for the content.
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

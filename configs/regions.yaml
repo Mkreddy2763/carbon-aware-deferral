@@ -1,0 +1,61 @@
+# Carbon-intensity regions. Test = last `test_months` of [start, end);
+# calibration = the `calib_months` before test; training = everything earlier.
+# main_forecast: forecast the scheduler uses in main experiments.
+#   F1 = LightGBM direct multi-horizon (all regions, identical method).
+#   F2 = NESO operator forecast (GB only; the API keeps a single stored forecast per
+#        slot with unknown lead time, so it is used as a sensitivity variant, not main).
+regions:
+  GB:
+    source: gb_api
+    tz: Europe/London
+    start: "2023-01-01"
+    end: "2026-01-01"
+    test_months: 3
+    calib_months: 2
+    main_forecast: F1
+  CISO:
+    source: eia930
+    ba: CISO
+    tz: America/Los_Angeles
+    start: "2023-01-01"
+    end: "2025-01-01"
+    test_months: 3
+    calib_months: 2
+    main_forecast: F1
+  ERCO:
+    source: eia930
+    ba: ERCO
+    tz: America/Chicago
+    start: "2023-01-01"
+    end: "2025-01-01"
+    test_months: 3
+    calib_months: 2
+    main_forecast: F1
+  PJM:
+    source: eia930
+    ba: PJM
+    tz: America/New_York
+    start: "2023-01-01"
+    end: "2025-01-01"
+    test_months: 3
+    calib_months: 2
+    main_forecast: F1
+  MISO:
+    source: eia930
+    ba: MISO
+    tz: America/Chicago
+    start: "2023-01-01"
+    end: "2025-01-01"
+    test_months: 3
+    calib_months: 2
+    main_forecast: F1
+  # GB with real horizon-resolved operator forecasts (archive covers 2023-03-14 -> 2024-02-02)
+  GBop:
+    source: gb_api
+    tz: Europe/London
+    start: "2021-01-01"
+    end: "2024-02-01"
+    test_months: 3
+    calib_months: 2
+    op_archive: GBop_opfc.parquet
+    main_forecast: F2

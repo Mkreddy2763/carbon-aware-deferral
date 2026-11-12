@@ -1,0 +1,40 @@
+\section{Problem Formulation}\label{sec:problem}
+
+\textbf{Jobs and emissions.}
+Job $j$ arrives at $a_j$, runs for $d_j$, holds $g_j$ GPUs and draws facility power
+$p_j = g_j P_{\mathrm{gpu}}\,(\iota + (1-\iota)u_j)\,\mathrm{PUE}$, with per-job utilisation $u_j$.
+Starting at $s$ in region $r$ it emits
+$E_j(s,r) = p_j \int_s^{s+d_j} \mathrm{CI}_r(t)\,dt$.
+A job is \emph{deferrable} if $d_j \ge 1$\,h; it must finish by $a_j + d_j + S$ for slack $S$.
+All jobs share a finite cluster of capacity $C$ GPUs: every placement is a reservation on a common
+calendar (conservative backfilling), so a deferred job occupies its target slot and later arrivals
+see reduced capacity there.
+
+\textbf{Harm.}
+A deferrable job is \emph{shifted} if it starts after arrival ($s_j > a_j$) or in another region.
+A shifted job is \emph{harmed} if $E_j(s_j, r_j) > E_j(a_j, \mathrm{home}_j)$: it emitted more than
+if it had run at submission. The \emph{harm rate} is the fraction of shifted jobs that are harmed.
+A shift is \emph{voluntary} if the cluster had capacity for the job at $a_j$ (the rule chose to
+wait) and \emph{forced} otherwise.
+
+\textbf{Clairvoyant greedy reference.} \emph{Clairvoyant greedy} (CG) knows future CI and job
+durations exactly but, like every other policy, places jobs one at a time on arrival, each choosing
+its own cheapest feasible slot. It is not a joint offline optimum. We report savings versus
+carbon-agnostic FCFS (P0), the \emph{CG capture ratio} $(E_{P0}-E)/(E_{P0}-E_{\mathrm{CG}})$ (the
+fraction of CG's saving a policy achieves), and regret $(E-E_{\mathrm{CG}})/E_{P0}$.
+
+\textbf{Attributing harm.}
+For each deferrable job the simulator records the slot $w^0_j$ its rule would choose at arrival
+if capacity were unlimited, and $w^L_j$, the same at its last (re-)decision. The excess of a harmed
+job splits exactly into three terms:
+\begin{equation}\label{eq:decomp}
+\begin{aligned}
+\underbrace{E(s_j)-E(a_j)}_{\text{harm}} ={}&
+\underbrace{E(w^0_j)-E(a_j)}_{\text{forecast}} +
+\underbrace{E(w^L_j)-E(w^0_j)}_{\text{re-planning}}\\
+&+ \underbrace{E(s_j)-E(w^L_j)}_{\text{contention}} .
+\end{aligned}
+\end{equation}
+The forecast term is what the rule's own choice would cost if the job got the slot it wanted; it is
+never positive for CG. The contention term is the cost of \emph{not} getting that slot because
+other reservations filled it.

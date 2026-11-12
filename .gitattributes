@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.parquet binary
+*.npz binary
+*.pdf binary
+*.png binary
+*.sqlite binary
+*.tar.gz binary

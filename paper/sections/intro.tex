@@ -1,0 +1,42 @@
+\section{Introduction}\label{sec:intro}
+
+Grid carbon intensity (CI) varies within a day, so a GPU job that can wait a few hours can often
+run on cleaner electricity. Temporal and spatial shifting are now standard
+proposals for greener data centres and ML clusters~\cite{wiesner2021wait,radovanovic2023carbon,xu2025green,hanafy2024gaia}.
+Evaluations usually report aggregate savings. They rarely ask what happens to the individual job
+that was told to wait.
+
+We measure that directly. A deferred job is \emph{harmed} if it ends up emitting more than if it had
+simply run on arrival. The common intuition is that harm comes from forecast error: the scheduler
+expected a cleaner hour that never arrived. The natural remedy is uncertainty quantification, such as
+conformal intervals~\cite{angelopoulos2023gentle,gibbs2021aci,li2024uncertainty}, so that the scheduler
+defers only when a saving is likely. We started from that hypothesis and built such schedulers. The
+data point elsewhere.
+
+\textbf{Findings.} Replaying ten weeks of the Alibaba PAI GPU trace~\cite{weng2022mlaas} against six
+grids, with forecasts that include NESO's own published 48\,h forecasts:
+\begin{itemize}
+\item Harm is common. A point-forecast scheduler harms \res{V2U}{ALL-S12-utiltarget0.7}{P3}{harmrate}\%
+of shifted jobs at 70\% utilisation. A clairvoyant greedy scheduler (CG), which knows future CI
+exactly but places jobs one at a time, still harms \res{V2U}{ALL-S12-utiltarget0.7}{P5}{harmrate}\%.
+\item Harm is mainly contention. CG's harm rate rises from
+\res{V2U}{ALL-S12-utiltarget0.5}{P5}{harmrate}\% to \res{V2U}{ALL-S12-utiltarget0.9}{P5}{harmrate}\%
+between 50\% and 90\% utilisation. An exact decomposition (Eq.~\ref{eq:decomp}) attributes
+\res{V2U}{POOL-S12-utiltarget0.7}{P2}{sharecontention}\% of a greedy scheduler's harmful excess to jobs
+not getting the slot they wanted, and \res{V2U}{POOL-S12-utiltarget0.7}{P2}{shareforecast}\% to forecast error.
+\item Uncertainty-aware rules are a dial, not a fix. Conformal policies move along a savings--harm
+curve. The decision-level rule's calibration bounds the \emph{marginal} rate of harmful deferrals
+over all decisions, and this bound holds in every region at every $\alpha$. It does not bound the
+\emph{conditional} harm rate among deferred jobs, which exceeds $\alpha$ in several regions, most
+in MISO and PJM.
+\item Addressing contention costs less saving per unit of harm removed. Keeping a quarter of capacity free for
+later arrivals is not dominated by any point of the conformal dial in \res{V2F}{ALL}{P8}{nondominated} of
+\res{V2F}{ALL}{P8}{nregions} regions.
+\end{itemize}
+
+\textbf{Contributions.} (i)~A job-level harm metric with an exact three-way attribution to forecast
+error, re-planning and contention. (ii)~A measurement across utilisation, slack, forecast error and
+region, anchored on operator forecast errors that we did not construct. (iii)~An evaluation of
+conformal risk-aware deferral as a savings--harm dial, with its guarantee scoped precisely.
+(iv)~A simple congestion-aware rule, which is our constructive result, and guidance on when shifting
+is worth it.

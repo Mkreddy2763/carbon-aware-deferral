@@ -1,0 +1,46 @@
+\section{Experimental Setup}\label{sec:setup}
+
+\textbf{Workload.} The Alibaba PAI GPU trace (2020)~\cite{weng2022mlaas,alibaba2020gputrace}:
+\res{DATA}{trace}{all}{ntasks} successful GPU tasks over \res{DATA}{trace}{all}{spandays} days.
+GPUs held are \texttt{inst\_num}$\times$\texttt{plan\_gpu}/100. Tasks of at least one hour are
+\res{DATA}{trace}{all}{fracjobsgeoneh}\% of tasks but \res{DATA}{trace}{all}{fracgpuhgeoneh}\% of
+GPU-hours, so the deferrable set carries almost all energy. Per-task utilisation comes from the sensor table
+(\res{DATA}{trace}{all}{utilcov}\% coverage, mean \res{DATA}{trace}{all}{utilmean}; 0.7 otherwise);
+$P_{\mathrm{gpu}}{=}300$\,W, idle fraction $\iota{=}0.3$, PUE\,$=1.2$.
+Each experiment replays one trace week (\res{RUN}{V2U}{all}{jobsperweekmin}--\res{RUN}{V2U}{all}{jobsperweekmax}
+tasks, plus a one-day warm-up) against a carbon test week, preserving local hour-of-week. Ten
+consecutive test weeks give ten paired samples per configuration; we report means with 95\% $t$
+intervals and paired Wilcoxon tests. Capacity $C$ is set so carbon-agnostic FCFS reaches a target
+mean utilisation (50, 70 or 90\%; 70\% unless stated).
+
+\textbf{Carbon data and forecasts.}
+\emph{GB-op} is our primary region because its forecast errors are not ours: actual CI from the
+NESO Carbon Intensity API~\cite{ciapi} and NESO's own 48\,h forecasts, recovered with their issue
+times from an archive of the API~\cite{powell_citracking}
+(test \res{DATA}{GBop}{all}{teststart} to \res{DATA}{GBop}{all}{end}).
+\emph{GB-25} uses the same API for late 2025 (test from \res{DATA}{GB}{all}{teststart}). CISO, ERCO,
+PJM and MISO use hourly EIA-930 generation by fuel~\cite{eia930} with IPCC AR5 lifecycle
+factors~\cite{schlomer2014annexiii} (test from \res{DATA}{CISO}{all}{teststart}).
+Where operator forecasts are unavailable, a direct multi-horizon LightGBM model (lags, rolling
+statistics, calendar; trained before the calibration window) forecasts 1--48\,h ahead.
+Split-conformal and ACI~\cite{gibbs2021aci} intervals are calibrated per horizon on the two months
+before the test period (Table~\ref{tab:forecast}).
+
+\textbf{Policies.} All share one reservation calendar; they differ only in where they place a job.
+P0: FCFS, carbon-agnostic.
+P1: run when current CI is below its trailing-week 30th percentile, otherwise wait until the latest start.
+P2: choose the start that minimises point-forecast emissions; P3: P2 plus hourly re-planning.
+P4: value each deferred option at its hourly conformal upper bound (running now at its point
+estimate) and defer only if a deferred bound beats running now; P4-$\lambda$ minimises
+forecast\,+\,$\lambda\cdot$interval width.
+P7: take P2's choice but defer only if its predicted saving exceeds a conformal margin
+calibrated on the \emph{decision itself}: on a rolling 60-day window, the $(1-\alpha)$ quantile of
+how much the greedy choice's predicted saving overstated the realised saving, per job length and slack.
+CG (clairvoyant greedy, Sec.~\ref{sec:problem}): exact CI and duration knowledge, but job-by-job placement.
+P8 and P9 are introduced in Section~\ref{sec:congestion}.
+
+\textbf{Execution.} The simulator uses 5-minute slots and hourly decisions. Every policy was
+checked against invariants (no start before arrival, capacity never exceeded, exact
+harm decomposition, CG cheapest with unlimited capacity). All \res{RUN}{ALL}{all}{ncells}
+simulations (\res{RUN}{ALL}{all}{corehours} core-hours) ran as Slurm jobs on a 64-core allocation of
+a DGX A100 node's CPUs; no GPU is used.

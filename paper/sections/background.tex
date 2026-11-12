@@ -1,0 +1,40 @@
+\section{Background and Related Work}\label{sec:related}
+
+\textbf{Carbon-aware shifting.}
+Temporal shifting defers flexible jobs to hours with lower grid carbon intensity (CI);
+spatial shifting moves them to cleaner regions~\cite{wiesner2021wait,radovanovic2023carbon}.
+Systems apply the idea to elastic batch work~\cite{hanafy2023carbonscaler,souza2023ecovisor},
+cloud cost--carbon trade-offs~\cite{hanafy2024gaia}, data-centre design~\cite{acun2023carbonexplorer},
+precedence-constrained data processing~\cite{lechowicz2025pcaps}, and GPU clusters for machine
+learning, where GREEN~\cite{xu2025green} shifts training jobs toward low-carbon periods.
+Online-algorithm work gives competitive guarantees for pause/resume and conversion
+problems~\cite{lechowicz2023pauseresume,lechowicz2024conversion}.
+Sukprasert et al.~\cite{sukprasert2024limits} bound the achievable benefit of shifting with
+perfect information and find it smaller than often assumed; reviews survey spatio-temporal
+schemes~\cite{asadov2025review,riepin2025truly}. These works mostly assume point forecasts or
+perfectly known CI, and evaluate aggregate savings. None measures how many \emph{individual} jobs are made
+worse off, nor separates forecast error from contention among deferred jobs.
+
+\textbf{CI forecasting.}
+CarbonCast and successors forecast CI days ahead from generation-mix and weather
+features~\cite{maji2022carboncast,maji2023multiday,maji2022dacf,yan2025ensembleci}; CarbonX adds
+prediction intervals~\cite{maji2025carbonx}. The GB system operator (NESO) publishes a 48\,h national
+forecast~\cite{ciapi,bruce2024cimethod}, but its API keeps only the latest forecast per
+half-hour~\cite{ciapi_issue11}; horizon-resolved history survives only in a third-party
+archive~\cite{powell_citracking}, which we use.
+
+\textbf{Uncertainty-aware scheduling.}
+Conformal prediction gives distribution-free, finite-sample marginal coverage for
+forecasts~\cite{angelopoulos2023gentle}; adaptive conformal inference (ACI) keeps long-run coverage
+under distribution shift~\cite{gibbs2021aci}, and time-series variants exist~\cite{xu2023spci,xu2023cpts}.
+Closest to us, Li et al.~\cite{li2024uncertainty} wrap CI forecasts in conformal intervals and show
+that ignoring uncertainty can increase emissions in aggregate. That line of work treats
+carbon-forecast uncertainty as the primary obstacle to deferral. Our decomposition shows that forecast
+error accounts for \res{V2U}{POOL-S12-utiltarget0.5}{P2}{shareforecast}\% of harmful excess emissions
+at 50\% utilisation and only \res{V2U}{POOL-S12-utiltarget0.9}{P2}{shareforecast}\% at 90\%. Contention
+among deferred jobs dominates at realistic loads. Others use robust or
+chance-constrained optimisation~\cite{hall2025probabilistic,yang2025conformalccp,ruparel2026dro} or
+uncertainty-quantified advice in online algorithms~\cite{johnson2025uqadvice}.
+We differ in asking \emph{why} deferral backfires at the level of individual jobs on a GPU trace,
+in attributing the backfire to forecast error, re-planning and contention, and in treating
+uncertainty-aware rules as points on a savings--harm trade-off rather than as a fix.

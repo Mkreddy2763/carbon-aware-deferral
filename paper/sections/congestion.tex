@@ -1,0 +1,44 @@
+\section{Congestion-Aware Deferral}\label{sec:congestion}
+
+If contention is the main cause of harm, the remedy should target it. Our simulator already makes
+every deferred job reserve its target slot, so later jobs see the reduced capacity. That alone does not
+stop deferred jobs from filling the cheapest hours and leaving no room for work that arrives during them.
+We test two minimal changes to point-forecast greedy.
+
+\textbf{P8, headroom-reserved deferral.} A \emph{deferred} reservation may use at most $(1-h)$ of any
+slot's capacity; running now may use all of it. With $h{=}0.25$, a quarter of every future hour stays
+available to arrivals. The carbon model is unchanged. P8's capacity reservation is a practical,
+online approximation of the joint assignment that a global optimum would make: it makes deferral
+decisions contention-aware without global foresight.
+
+\textbf{P9, jittered deferral.} Instead of the argmin, pick uniformly among the three best slots that
+are forecast no worse than running now (P9-r re-plans but keeps its slot while it stays in the top three).
+
+\textbf{Results.} At 70\% utilisation, P8 lowers the harm rate from
+\res{V2U}{ALL-S12-utiltarget0.7}{P3}{harmrate}\% to \res{V2U}{ALL-S12-utiltarget0.7}{P8}{harmrate}\%
+(mean of six regions) for \res{V2X}{ALL-u0.7}{P8}{savinglossvsPthree} points of saving. Harm is lower
+in \res{V2W}{u0.7}{P8vsP3}{harmratewins} of \res{V2W}{u0.7}{P8vsP3}{harmraten} paired region-weeks
+(Wilcoxon $p{<}0.05$ in \res{V2W}{u0.7}{P8vsP3}{harmratesig} of 6 regions). On GB-op it saves
+\res{V2U}{GBop-S12-utiltarget0.7}{P8}{savingpct}\% (P3: \res{V2U}{GBop-S12-utiltarget0.7}{P3}{savingpct}\%)
+while cutting harm by \res{V2X}{GBop-u0.7}{P8}{harmcutvsPthree}\%. It also shortens the tail: p95
+slowdown \res{V2U}{ALL-S12-utiltarget0.7}{P8}{slowdownp95} vs.\ \res{V2U}{ALL-S12-utiltarget0.7}{P3}{slowdownp95},
+and non-deferrable jobs wait \res{V2U}{ALL-S12-utiltarget0.7}{P8}{waitminmeannondeferrable} instead of
+\res{V2U}{ALL-S12-utiltarget0.7}{P3}{waitminmeannondeferrable} minutes on average. The mechanism is visible
+in the split: P8's \emph{voluntary} harm is not lower
+(\res{V2U}{ALL-S12-utiltarget0.7}{P8}{harmratevoluntary}\% vs.\ \res{V2U}{ALL-S12-utiltarget0.7}{P3}{harmratevoluntary}\%);
+what disappears is forced harm on jobs that found the cluster full.
+In Fig.~\ref{fig:dial}, P8 lies above the conformal dial, and it is non-dominated by any dial point in
+\res{V2F}{ALL}{P8}{nondominated} of \res{V2F}{ALL}{P8}{nregions} regions: there, no uncertainty-aware
+setting achieves both lower harm and higher saving.
+
+\textbf{Limits.} P8 does not reach the demanding target of P4's harm at P3's savings: it meets both in
+only \res{V2F}{u0.7}{P8}{hitstarget} region at 70\% and in none at 50\% or 90\%. Emissions under P8 are
+slightly higher than under P3 in most weeks (significantly so in
+\res{V2W}{u0.7}{P8vsP3}{emissionskgsig} of 6 regions, but not on GB-op). At 90\% utilisation the saving
+drops to \res{V2U}{ALL-S12-utiltarget0.9}{P8}{savingpct}\% against
+\res{V2U}{ALL-S12-utiltarget0.9}{P3}{savingpct}\%. A larger headroom ($h{=}0.5$) over-restricts deferral
+(saving \res{V2U}{ALL-S12-utiltarget0.7}{P8-h0.5}{savingpct}\%). Jitter barely helps: P9-r's harm rate is
+\res{V2U}{ALL-S12-utiltarget0.7}{P9-r}{harmrate}\% against P3's
+\res{V2U}{ALL-S12-utiltarget0.7}{P3}{harmrate}\%, because the three best slots are usually adjacent hours
+of the same trough. Herding onto a single argmin is therefore not the whole story. What matters is how
+much of the trough deferred work may occupy.

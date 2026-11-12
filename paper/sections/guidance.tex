@@ -1,0 +1,43 @@
+\section{Guidance}\label{sec:guidance}
+
+\textbf{Shift when the cluster has room.} Savings and harm both depend more on utilisation than on
+the forecaster. Greedy shifting saves \res{V2U}{ALL-S12-utiltarget0.5}{P3}{savingpct}\% at 50\%
+utilisation but only \res{V2U}{ALL-S12-utiltarget0.9}{P3}{savingpct}\% at 90\%, where even clairvoyant greedy
+saves just \res{V2U}{ALL-S12-utiltarget0.9}{P5}{savingpct}\%. Even carbon-agnostic FCFS
+queueing then delays jobs into hours worse than their arrival hour about as often as not
+(\res{V2U}{ALL-S12-utiltarget0.9}{P0}{harmrate}\% of queued deferrable jobs).
+
+\textbf{Cap deferred occupancy before tuning the forecaster.} Reserving headroom (P8) removes
+contention harm at a small cost; interval-based caution (P4, P7) removes savings first.
+
+\textbf{Slack buys savings and harm together.} Mean greedy saving grows from
+\res{V1S}{ALL-S2}{P3}{savingpct}\% at 2\,h slack to \res{V1S}{ALL-S24}{P3}{savingpct}\% at 24\,h,
+while CG's harm grows from \res{V1S}{ALL-S2}{P5}{harmrate}\% to \res{V1S}{ALL-S24}{P5}{harmrate}\%.
+
+\textbf{Forecast quality matters, but only once contention is controlled.} Scaling real errors by
+$k{=}3$ drives greedy's CG capture ratio from \res{V1K}{ALL-k1}{P3}{capture} to
+\res{V1K}{ALL-k3}{P3}{capture}. Operator forecasts (GB-op) support the largest point-forecast savings in our study.
+Low-variation grids (PJM, MISO) offer little to shift toward, whatever the policy.
+
+\textbf{Spatial options widen the trough.} Across CISO, ERCO and PJM, point-forecast
+spatio-temporal shifting saves \res{E5}{US3-S12}{P6-point}{savingpct}\% against
+\res{E5}{US3-S12}{P3}{savingpct}\% temporal-only (spatial clairvoyant greedy \res{E5}{US3-S12}{P6-oracle}{savingpct}\%; 65\% utilisation). This is consistent
+with deferred jobs no longer competing for one region's cheapest hours.
+
+\section{Limitations}\label{sec:limits}
+The cluster is simulated: a reservation calendar with exact durations (except in a noisy-duration
+ablation), no preemption and no network cost beyond a fixed 10-minute migration delay. Energy is a
+proxy (nameplate power scaled by sensor utilisation, fixed PUE). Because every job's cost scales
+linearly with power, policy rankings are invariant to $P_{\mathrm{gpu}}$ and PUE by construction, and
+our sensitivity runs confirm this rather than test it. We use average, not marginal, emission factors
+and lifecycle factors for US grids. A single 2020 trace is replayed against 2023--2025 grids, and the
+GB-op forecasts come from a third-party archive of the operator's API. Harm counts only emissions; the
+slowdown cost of deferral is reported but not traded off explicitly.
+
+\section{Conclusion}\label{sec:conclusion}
+Deferring GPU jobs to cleaner hours backfires often, and mostly for a reason forecasts cannot fix:
+deferred jobs compete for the same clean hours. Uncertainty-aware policies move along a savings--harm
+curve. Their conformal calibration bounds harmful deferrals over all decisions, in every region, but
+not the harm rate among the jobs they defer. A congestion-aware cap on deferred
+occupancy does better than tightening forecast confidence. Carbon-aware schedulers should treat the
+clean hours as a shared resource, not a free one.

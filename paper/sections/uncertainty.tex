@@ -1,0 +1,58 @@
+\input{tables/forecast.tex}
+
+\section{Do Uncertainty-Aware Policies Help?}\label{sec:uncertainty}
+
+\textbf{Forecasts and intervals (Table~\ref{tab:forecast}).}
+NESO's operator forecast has MAE \res{FQ}{GBop}{F2}{maeh1to6} (1--6\,h) to
+\res{FQ}{GBop}{F2}{maeh25to48}\,gCO$_2$/kWh (25--48\,h), well below our weather-free LightGBM
+(\res{FQ}{GBop}{F1}{maeh1to6} and \res{FQ}{GBop}{F1}{maeh25to48}). Split-conformal intervals
+under-cover when the test season differs from calibration (MISO: \res{FQ}{MISO}{F1}{covsplita1}\% at
+nominal 90\%). ACI restores coverage to \res{FQ}{MISO}{F1}{covacia1}\%.
+
+\textbf{A savings--harm dial (Fig.~\ref{fig:dial}).}
+P4 values every deferred option at its hourly conformal upper bound. It cuts the harm rate by
+\res{V2X}{ALL-u0.7}{P4}{harmcutvsPthree}\% relative to P3 but gives up
+\res{V2X}{ALL-u0.7}{P4}{savinglossvsPthree} points of saving. It keeps only
+\res{V2U}{ALL-S12-utiltarget0.7}{P4}{capture} of CG's saving (its CG capture ratio), because summing hourly upper
+bounds over a multi-hour job ignores the strong correlation of errors across horizons. Replacing
+the bound with forecast\,+\,$\lambda\cdot$width gives a continuum (orange curve). The decision-level
+rule P7 calibrates the quantity that matters, the overestimate of the greedy choice's saving, and
+traces a better curve as $\alpha$ varies. Neither is a free lunch: at 70\% utilisation P7 cuts harm by
+\res{V2X}{ALL-u0.7}{P7}{harmcutvsPthree}\% for \res{V2X}{ALL-u0.7}{P7}{savinglossvsPthree} points of
+saving. These rules are points on a trade-off curve, not winners.
+
+\textbf{What the guarantee does and does not cover.}
+Conformal calibration gives \emph{marginal} coverage over the calibration distribution of
+decisions. For P7 that means, over all decisions where running now was possible,
+$\Pr[\text{defer} \wedge \text{realised saving}<0] \le \alpha$. The harm rate is a
+\emph{conditional} quantity, $\Pr[\text{harm}\mid\text{defer}]$, and is not bounded: when deferral is
+rare, a small marginal violation budget concentrates on the few deferred jobs. Measured with the
+exact denominator, the marginal rate of harmful voluntary deferrals stays at or below $\alpha$ in
+\res{V2G}{a0.1}{P7}{marginalbelow} of 6 regions at $\alpha{=}0.1$ (maximum
+\res{V2G}{a0.1}{P7}{marginalmax}\%) and at every other $\alpha$ tested. The conditional voluntary harm
+rate is not bounded by it: at $\alpha{=}0.1$ it exceeds $\alpha$ in
+\res{V2G}{a0.1}{P7}{conditionalabove} of 6 regions, most in MISO and PJM, reaching
+\res{V2G}{a0.1}{P7}{conditionalmax}\% (MISO:
+\res{V2G}{a0.1-MISO}{P7}{conditional}\% conditional vs.\ \res{V2G}{a0.1-MISO}{P7}{marginal}\% marginal).
+In MISO and PJM, grid variation within the slack window is small relative to forecast error
+(MISO's LightGBM forecast also carries a bias of \res{FQ}{MISO}{F1}{bias}\,g/kWh). The predicted saving then sits inside the noise,
+the rule defers rarely, and the deferrals it does make are close calls. Contention harm (forced
+shifts) is outside the guarantee altogether, because calibration sees an empty cluster.
+
+\textbf{Re-planning does not compound harm.}
+Hourly re-planning adds \res{V2R}{ALL}{P3vsP2}{ddecisions} deferral decisions per job for point
+greedy, yet \emph{lowers} its harm rate by \res{V2R}{ALL}{P3vsP2}{harmdroppp} points: harm rose in
+only \res{V2R}{ALL}{P3vsP2}{harmupfrac}\% of region--utilisation settings, and the same holds for P8
+and P9. Across all policy pairs, decisions per job correlate only weakly with harm (Spearman
+$\rho{=}$\res{V2R}{ALL}{decisions}{rhoharmrate}, $n{=}$\res{V2R}{ALL}{decisions}{n}). The exception is
+P7. Every re-decision is another test, so re-planning raises its voluntary harm by
+\res{V2R}{ALL}{P7vsP7-noreplan}{dharmvolpp} points and costs
+\res{V2R}{ALL}{P7vsP7-noreplan}{savinglosspp} points of saving; P7 should decide once.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figs/fig_dial.pdf}
+\caption{Savings vs.\ harm at 70\% utilisation. Conformal rules sweep a trade-off curve ($\lambda$, $\alpha$);
+the congestion-aware P8 lies above it.}
+\label{fig:dial}
+\end{figure}
